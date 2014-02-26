@@ -1,0 +1,30 @@
+body {
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+p {
+	margin: 0px;
+	padding: 0px;
+	background-color: #eee;
+}
+
+.users {
+	width: 125px;
+	height: 100px;
+	margin: 5px;
+	display: inline-block;
+	border: 1px solid black;
+	text-align: center;
+	vertical-align: top;
+}
+
+textarea {
+	width: 115px;
+	height: 75px;
+	resize: none;
+}
+

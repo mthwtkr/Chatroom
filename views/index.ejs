@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+    	io = io.connect('http://localhost:6789');
+    	var name = prompt('Your name: ');
+    	io.emit('add_user', {name: name});
+
+        // On user connection, display connected user to all existing users
+    	io.on('new_user', function (user) {
+    		$("<div class='users' id='"+ user.id +"'>"+
+			 	"<p>"+ user.name +"</p>"+
+                "<textarea readonly></textarea>"+
+			  "</div>")
+    			.appendTo('#container')
+    			.hide().fadeIn(1500);
+    	});
+
+        // On user connection, show all currently connected user
+    	io.on('existing_users', function (users) {
+    		for (var position = 0; position < users.length; position++) {
+                // Starting value for html content
+                 var html = "<div class='users' id='" + users[position].id + "'><p>" + users[position].name +"</p>";
+
+                // For current user, add editable text area
+                if (position == 0) {
+                    html += "<textarea id='my_box'></textarea></div>"
+                }
+                // Every other user, add readonly text area
+                else {
+                    html +=  "<textarea readonly></textarea></div>";
+                }
+
+                // Append html content to container, and fade it in
+                $(html).appendTo('#container').hide().fadeIn(1500);
+    		}
+    	});
+
+        // Received updated text from other users
+        io.on('text_update', function (data) {
+            $('#' + data.id).children('textarea').val(data.text);
+        });
+
+        // When user disconnects, fadeout that users box
+        // Display which user logged out
+    	io.on('delete_user', function (user) {
+    		$('#' + user.id).fadeOut(1500).remove();
+
+    		$("<p>" + user.name + " has logged out</p>")
+    			.appendTo('#activity')
+                .hide().fadeIn(500).fadeOut(3500);
+    	});
+
+        // Update text boxes as users are typing
+        $(document).ready(function() {
+            $(document).on('keyup', '#my_box', function() {
+                var text = $('#my_box').val();
+                io.emit('updated_text', {text: text});
+            });
+        });
+    </script>
+  </head>
+  <body>
+  	<div id="container">
+	    <div id="activity"></div>
+	</div>
+  </body>
+</html>
